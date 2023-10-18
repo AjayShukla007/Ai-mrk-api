@@ -1,4 +1,4 @@
-# AI Markdown Editor API
+# Ai-mrk(Advanced Intelligent Markdown Resource Kit) API
 
 ## Overview
 AI Markdown Editor API is a powerful backend designed to support the AI Markdown Editor. It provides features like login, signup, saving markdown on the cloud, secure login, and it's fast, easy to use, and smooth.
