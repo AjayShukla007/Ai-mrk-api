@@ -3,8 +3,6 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const JWT_secret = "iamajayshuklatheownerofthissite";
-
 const router = express.Router();
 router.use(express.json());
 
@@ -21,8 +19,8 @@ router.post(
     body("userName").isLength({ min: 4 }),
     body("email", "Enter a valid email").isEmail(),
     body("password", "Password must contains at least 5 charectors").isLength({
-      min: 5,
-    }),
+      min: 5
+    })
   ],
   async (req, res) => {
     //console.log(req.body);
@@ -39,7 +37,7 @@ router.post(
       });
       if (user) {
         return res.status(400).json({
-          errors: "userName already taken",
+          errors: "userName already taken"
         });
       }
       let mail = await User.findOne({
@@ -47,10 +45,10 @@ router.post(
       });
       if (mail) {
         return res.status(400).json({
-          errors: "email already exist, please login to your account",
+          errors: "email already exist, please login to your account"
         });
       }
-      
+
       //CREATE NEW USER
       //Securing Passwords of users
       const salt = await bcrypt.genSalt(10);
@@ -60,17 +58,16 @@ router.post(
         name: req.body.name,
         userName: req.body.userName,
         email: req.body.email,
-        password: secPass,
+        password: secPass
       });
       const data = {
         user: {
-          id: user.id,
-        },
+          id: user.id
+        }
       };
-      const authToken = jwt.sign(data, JWT_secret);
-      // console.log(authToken);
+      const authToken = jwt.sign(data, process.env.JWT_secret);
 
-      // res.json(user);
+      // res.json(user);//debug
       res.json({ authToken });
     } catch (e) {
       console.error(errors.messege);
@@ -86,8 +83,8 @@ router.post(
   [
     body("userName", " invalid userName").isLength({ min: 4 }),
     body("password", "password cart be empty").isLength({
-      min: 1,
-    }),
+      min: 1
+    })
   ],
   async (req, res) => {
     //If any validation brock
@@ -103,24 +100,24 @@ router.post(
       if (!user) {
         return res.status(400).json({
           error:
-            "unable to login, try again using current userName and password",
+            "unable to login, try again using current userName and password"
         });
       }
       const checkPass = await bcrypt.compare(password, user.password);
-      // console.log(await bcrypt.compare(password, user.password));
+      // console.log(await bcrypt.compare(password, user.password));//debug
       if (!checkPass) {
-        console.log("userpass " + user.password + " " + "pass " + password);
+        // console.log("userpass " + user.password + " " + "pass " + password);
         return res.status(400).json({
           error:
-            "unable to login, try again using current userName and password",
+            "unable to login, try again using current userName and password"
         });
       }
       const data = {
         user: {
-          id: user.id,
-        },
+          id: user.id
+        }
       };
-      const authToken = jwt.sign(data, JWT_secret);
+      const authToken = jwt.sign(data, process.env.JWT_secret);
       res.json({ authToken });
     } catch (e) {
       console.error(errors.messege);
@@ -132,7 +129,6 @@ router.post(
 //USER ROUTE 3
 // Getting user data
 router.get("/getData", fetchData, async (req, res) => {
-  //Middleware
   try {
     const userId = req.user.id;
     const user = await User.findById(userId).select("-password");
@@ -143,8 +139,3 @@ router.get("/getData", fetchData, async (req, res) => {
 });
 
 module.exports = router;
-
-/** THINGS TO REMEMBER **/
-
-//BCRYPT WILL HASH MY PASSWORDS AMD SALT ADD SOME EXTRA CHAR TO ENHANCE SECURITY OF PASSWORDS
-// JWT WILL GIVE USERS A TOKEN SO USER WILL NOT HAVE TO LOGIN EVERY TIME WITH THE SAME DEVICE
